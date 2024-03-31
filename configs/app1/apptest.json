@@ -1,5 +1,5 @@
 {
-    "endpoint":"https://httpbin.org/status/200",
+    "endpoint":"http://localhost:8000/status/200",
     "method": "POST",
     "expected_status_code": "200"
 }
