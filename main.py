@@ -1,9 +1,17 @@
-import json
+import configparser
 import os
 import requests
 import sys
+import yaml
 
-APP_CONFIGS_DIR = 'configs'
+from utils import helpers
+
+
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+
+APP_CONFIGS_DIR = config.get('APP_CONFIGS', 'MAIN_DIR')
 
 
 def main():
@@ -17,7 +25,7 @@ def main():
 
     print('Target confirmed, scanning for available tests ... \n')
     target_suite = find_tests(target_path)
-    load_test_path = os.path.join(target_path, f'{target_suite}/main.json')
+    load_test_path = os.path.join(target_path, f'{target_suite}/main.yaml')
 
     runs = int(input('\n# of required runs: '))
     # default to 1 if less than 1
@@ -25,6 +33,7 @@ def main():
 
 
 def verify_target(target: str) -> str: 
+    target = helpers.sanitize_input(target)
     for item in os.listdir(APP_CONFIGS_DIR):
         if item == target:
             # verify item is a directory
@@ -43,11 +52,6 @@ def find_tests(path: str) -> str:
     return tests[target_suite]
 
 
-
-def validate_json_fields(*args) -> bool:
-    return all(arg is not None for arg in args)
-
-
 def run(method, endpoint, status_code):
     response = requests.request(method.upper(), endpoint)
 
@@ -58,14 +62,18 @@ def run(method, endpoint, status_code):
 
 
 def load_test(runs: int, path: str):
-    with open(path, 'r') as file:
-        data = json.load(file)
+    try:
+        with open(path, 'r') as file:
+            data = yaml.safe_load(file)
+    except FileNotFoundError:
+        print('Unable to locate setting for load test')
+        sys.exit()
 
     endpoint = data.get('endpoint')
     method = data.get('method')
     expected_status_code = data.get('expected_status_code')
 
-    if validate_json_fields(endpoint, method, expected_status_code):
+    if helpers.validate_json_fields(endpoint, method, expected_status_code):
         while runs != 0:
             run(method, endpoint, status_code=expected_status_code)
             runs-=1
