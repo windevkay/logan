@@ -2,8 +2,10 @@ import configparser
 import os
 import requests
 import sys
+import time
 import yaml
 
+from logger import logger
 from utils import helpers
 
 
@@ -15,7 +17,7 @@ APP_CONFIGS_DIR = config.get("APP_CONFIGS", "MAIN_DIR")
 
 
 def main():
-    target_app = input("Load-test target: ")
+    target_app = input("Load-test target (app): ")
     print("Confirming target exists ... \n")
 
     target_path = verify_target(target_app.lower())
@@ -25,14 +27,15 @@ def main():
 
     print("Target confirmed, scanning for available tests ... \n")
     target_suite = find_tests(target_path)
-    load_test_path = os.path.join(target_path, f"{target_suite}/main.yaml")
+    load_test_path = os.path.join(target_path, f"{target_suite}/test_config.yaml")
+    log_path = os.path.join(target_path, target_suite)
 
     runs = int(input("\n# of required runs: "))
     # default to 1 if less than 1
     (
-        load_test(runs=1, path=load_test_path)
+        load_test(1, load_test_path, log_path)
         if runs < 1
-        else load_test(runs, path=load_test_path)
+        else load_test(runs, load_test_path, log_path)
     )
 
 
@@ -64,17 +67,15 @@ def run(method, endpoint, status_code):
     response = requests.request(method.upper(), endpoint)
 
     if response.status_code != int(status_code):
-        print("somethings off")
-    else:
-        print("all good!")
+        print("Unexpected status code")
 
 
-def load_test(runs: int, path: str):
+def load_test(runs: int, path: str, log_path: str):
     try:
         with open(path, "r") as file:
             data = yaml.safe_load(file)
     except FileNotFoundError:
-        print("Unable to locate setting for load test")
+        print("Unable to locate configs for load test")
         sys.exit()
 
     endpoint = data.get("endpoint")
@@ -82,11 +83,20 @@ def load_test(runs: int, path: str):
     expected_status_code = data.get("expected_status_code")
 
     if helpers.validate_yaml_fields(endpoint, method, expected_status_code):
+        required_runs = runs
+        start_time = time.time()
+
         while runs != 0:
             run(method, endpoint, status_code=expected_status_code)
             runs -= 1
+
+        end_time = time.time()
+        time_taken = round(end_time - start_time, 2)
+
+        result = f"Runs: {required_runs} | Total time taken: {time_taken} (secs)"
+        logger.load_test_run_log(result, os.path.join(log_path, "results.log"))
     else:
-        print("field validation failed")
+        print("Field validation failed")
 
 
 # start the program
