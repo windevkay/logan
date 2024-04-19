@@ -1,3 +1,16 @@
-endpoint: "http://localhost:80/status/200"
-method: "POST"
-expected_status_code: "200"
+main:
+  endpoint: http://localhost:80/status/200
+  method: POST
+  expected_status_code: 200
+#   depends_on:
+#     - name: receive_400
+#       for: "app_token"
+#     - name: "receive_400"
+#       for: "request_token" 
+
+# dependencies:
+#   receive_400:
+#     endpoint: "http://localhost:80/status/200"
+#     method: "POST"
+#     expected_status_code: "200"
+#     depends_on: ""

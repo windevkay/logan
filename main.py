@@ -3,9 +3,8 @@ import os
 import requests
 import sys
 import time
-import yaml
 
-from logger import logger
+from config_reader import reader
 from utils import helpers
 
 
@@ -66,35 +65,27 @@ def find_tests(path: str) -> str:
 def run(method, endpoint, status_code):
     response = requests.request(method.upper(), endpoint)
 
-    if response.status_code != int(status_code):
-        print("Unexpected status code")
+    if response.status_code != status_code:
+        print("Unexpected status code", response.status_code)
 
 
 def load_test(runs: int, path: str, log_path: str):
-    try:
-        with open(path, "r") as file:
-            data = yaml.safe_load(file)
-    except FileNotFoundError:
-        print("Unable to locate configs for load test")
-        sys.exit()
-
-    endpoint = data.get("endpoint")
-    method = data.get("method")
-    expected_status_code = data.get("expected_status_code")
+    read_yml = reader.Config_Reader(path)
+    endpoint, method, expected_status_code = read_yml.read_config()
 
     if helpers.validate_yaml_fields(endpoint, method, expected_status_code):
         required_runs = runs
         start_time = time.time()
 
         while runs != 0:
-            run(method, endpoint, status_code=expected_status_code)
+            run(method, endpoint, expected_status_code)
             runs -= 1
 
         end_time = time.time()
         time_taken = round(end_time - start_time, 2)
 
         result = f"Runs: {required_runs} | Total time taken: {time_taken} (secs)"
-        logger.load_test_run_log(result, os.path.join(log_path, "results.log"))
+        helpers.load_test_run_log(result, os.path.join(log_path, "results.log"))
     else:
         print("Field validation failed")
 
