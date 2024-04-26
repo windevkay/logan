@@ -4,7 +4,6 @@ import requests
 import sys
 import time
 
-from config_reader import reader
 from utils import helpers
 
 
@@ -70,8 +69,7 @@ def run(method, endpoint, status_code):
 
 
 def load_test(runs: int, path: str, log_path: str):
-    read_yml = reader.Config_Reader(path)
-    endpoint, method, expected_status_code = read_yml.read_config()
+    endpoint, method, expected_status_code = helpers.read_config(path)
 
     if helpers.validate_yaml_fields(endpoint, method, expected_status_code):
         required_runs = runs
