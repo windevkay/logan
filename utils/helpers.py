@@ -3,6 +3,8 @@ import re
 import sys
 import yaml
 
+from typing import Tuple
+
 
 def sanitize_input(input_string):
     # Remove any characters that are not alphanumeric, underscores, or hyphens
@@ -28,13 +30,13 @@ def load_test_run_log(output: str, log_file_path: str):
     log.info(output)
 
 
-def read_config(config_path: str):
+def read_config(config_path: str) -> Tuple[str, str, int]:
     try:
         with open(config_path, "r") as file:
             data = yaml.safe_load(file)
     except FileNotFoundError:
         print("Unable to locate configs for load test")
-        sys.exit()
+        sys.exit(1)
 
     config = data.get("main")
     return (
