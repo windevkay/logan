@@ -62,29 +62,31 @@ def find_tests(path: str) -> str:
         sys.exit(1)
 
 
-def run(method, endpoint, status_code):
+def run(method: str, endpoint: str, status_code: int, log_path: str):
     response = requests.request(method.upper(), endpoint)
 
     if response.status_code != status_code:
-        print("Unexpected status code", response.status_code)
+        err = f"Wanted status code {status_code} | Got: {response.status_code}"
+        helpers.log_error(err, log_path)
 
 
 def load_test(runs: int, path: str, log_path: str):
     endpoint, method, expected_status_code = helpers.read_config(path)
+    log_path = os.path.join(log_path, "results.log")
 
     if helpers.validate_yaml_fields(endpoint, method, expected_status_code):
         required_runs = runs
         start_time = time.time()
 
         while runs != 0:
-            run(method, endpoint, expected_status_code)
+            run(method, endpoint, expected_status_code, log_path)
             runs -= 1
 
         end_time = time.time()
         time_taken = round(end_time - start_time, 2)
 
         result = f"Runs: {required_runs} | Total time taken: {time_taken} (secs)"
-        helpers.load_test_run_log(result, os.path.join(log_path, "results.log"))
+        helpers.log_summary(result, log_path)
     else:
         print("Field validation failed")
 

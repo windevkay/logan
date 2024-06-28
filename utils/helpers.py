@@ -4,6 +4,7 @@ import sys
 import yaml
 
 from typing import Tuple
+from logging import FileHandler
 
 
 def sanitize_input(input_string):
@@ -15,19 +16,35 @@ def validate_yaml_fields(*args) -> bool:
     return all(arg is not None for arg in args)
 
 
-def load_test_run_log(output: str, log_file_path: str):
-    log = logging.getLogger("load test")
-    log.setLevel(logging.INFO)
-
-    handler = logging.FileHandler(log_file_path)
+def create_log_handler(path: str) -> FileHandler:
+    handler = logging.FileHandler(path)
 
     formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
     handler.setFormatter(formatter)
 
+    return handler
+
+
+def log_summary(output: str, path: str):
+    log = logging.getLogger("Run Summary")
+    log.setLevel(logging.INFO)
+
+    handler = create_log_handler(path)
+
     log.addHandler(handler)
     log.info(output)
+
+
+def log_error(output: str, path: str):
+    log = logging.getLogger("Response Error")
+    log.setLevel(logging.ERROR)
+
+    handler = create_log_handler(path)
+
+    log.addHandler(handler)
+    log.error(output)
 
 
 def read_config(config_path: str) -> Tuple[str, str, int]:

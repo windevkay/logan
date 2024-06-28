@@ -1,3 +1,8 @@
-2024-04-12 15:49:07,386 - load test - INFO - Runs: 10 | Total time taken: 0.03 (secs)
-2024-06-28 14:07:19,517 - load test - INFO - Runs: 5000 | Total time taken: 7.38 (secs)
-2024-06-28 14:10:49,351 - load test - INFO - Runs: 100000 | Total time taken: 141.93 (secs)
+
+2024-06-28 15:01:49,385 - Response Error - ERROR - Error: Wanted status code 200 | Got: 400
+2024-06-28 15:01:49,388 - Response Error - ERROR - Error: Wanted status code 200 | Got: 400
+2024-06-28 15:01:49,388 - Response Error - ERROR - Error: Wanted status code 200 | Got: 400
+2024-06-28 15:01:49,398 - Response Error - ERROR - Error: Wanted status code 200 | Got: 400
+2024-06-28 15:01:49,398 - Response Error - ERROR - Error: Wanted status code 200 | Got: 400
+2024-06-28 15:01:49,398 - Response Error - ERROR - Error: Wanted status code 200 | Got: 400
+2024-06-28 15:01:49,402 - Run Summary - INFO - Runs: 10 | Total time taken: 0.03 (secs)

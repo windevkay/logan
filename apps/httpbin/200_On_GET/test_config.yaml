@@ -1,5 +1,5 @@
 main:
-  endpoint: http://localhost:80/status/200
+  endpoint: http://localhost:80/status/200,400
   method: POST
   expected_status_code: 200
 #   depends_on:
