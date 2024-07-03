@@ -4,6 +4,9 @@ import requests
 import sys
 import time
 
+from collections import defaultdict
+from tqdm import tqdm
+
 from utils import helpers
 
 
@@ -62,12 +65,10 @@ def find_tests(path: str) -> str:
         sys.exit(1)
 
 
-def run(method: str, endpoint: str, status_code: int, log_path: str):
+def run(method: str, endpoint: str) -> int:
     response = requests.request(method.upper(), endpoint)
 
-    if response.status_code != status_code:
-        err = f"Wanted status code {status_code} | Got: {response.status_code}"
-        helpers.log_error(err, log_path)
+    return response.status_code
 
 
 def load_test(runs: int, path: str, log_path: str):
@@ -77,16 +78,25 @@ def load_test(runs: int, path: str, log_path: str):
     if helpers.validate_yaml_fields(endpoint, method, expected_status_code):
         required_runs = runs
         start_time = time.time()
+        status_code_counter = defaultdict(int)
+        pbar = tqdm(total=runs, desc="Running load tests")
 
         while runs != 0:
-            run(method, endpoint, expected_status_code, log_path)
+            status_code = run(method, endpoint)
+            status_code_counter[status_code] += 1
+            pbar.update(1)
+
             runs -= 1
 
+        pbar.close()
         end_time = time.time()
         time_taken = round(end_time - start_time, 2)
-
+        # log summary
         result = f"Runs: {required_runs} | Total time taken: {time_taken} (secs)"
         helpers.log_summary(result, log_path)
+        # log status code specifics
+        for code, count in status_code_counter.items():
+            helpers.log_summary(f"Status Code {code}: {count} times", log_path)
     else:
         print("Field validation failed")
 

@@ -31,20 +31,11 @@ def log_summary(output: str, path: str):
     log = logging.getLogger("Run Summary")
     log.setLevel(logging.INFO)
 
-    handler = create_log_handler(path)
+    if not log.handlers:
+        handler = create_log_handler(path)
+        log.addHandler(handler)
 
-    log.addHandler(handler)
     log.info(output)
-
-
-def log_error(output: str, path: str):
-    log = logging.getLogger("Response Error")
-    log.setLevel(logging.ERROR)
-
-    handler = create_log_handler(path)
-
-    log.addHandler(handler)
-    log.error(output)
 
 
 def read_config(config_path: str) -> Tuple[str, str, int]:
