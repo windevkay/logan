@@ -5,6 +5,7 @@ import sys
 import time
 
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 
 from utils import helpers
@@ -15,6 +16,7 @@ config.read("config.ini")
 
 
 APP_CONFIGS_DIR = config.get("APP_CONFIGS", "MAIN_DIR")
+MAX_WORKERS = config.get("RUN_CONFIGS", "MAX_WORKERS")
 
 
 def main():
@@ -67,7 +69,6 @@ def find_tests(path: str) -> str:
 
 def run(method: str, endpoint: str) -> int:
     response = requests.request(method.upper(), endpoint)
-
     return response.status_code
 
 
@@ -79,14 +80,18 @@ def load_test(runs: int, path: str, log_path: str):
         required_runs = runs
         start_time = time.time()
         status_code_counter = defaultdict(int)
-        pbar = tqdm(total=runs, desc="Running load tests")
+        futures = []
 
-        while runs != 0:
-            status_code = run(method, endpoint)
-            status_code_counter[status_code] += 1
-            pbar.update(1)
+        with ThreadPoolExecutor(max_workers=int(MAX_WORKERS)) as executor:
+            pbar = tqdm(total=runs, desc="Running load tests")
+            for _ in range(runs):
+                future = executor.submit(run, method, endpoint)
+                futures.append(future)
 
-            runs -= 1
+            for future in as_completed(futures):
+                status_code = future.result()
+                status_code_counter[status_code] += 1
+                pbar.update(1)
 
         pbar.close()
         end_time = time.time()

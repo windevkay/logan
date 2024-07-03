@@ -7,3 +7,12 @@
 2024-07-02 21:12:13,340 - Run Summary - INFO - Runs: 3000 | Total time taken: 4.45 (secs)
 2024-07-02 21:12:13,341 - Run Summary - INFO - Status Code 200: 1497 times
 2024-07-02 21:12:13,341 - Run Summary - INFO - Status Code 400: 1503 times
+2024-07-02 21:40:43,836 - Run Summary - INFO - Runs: 5000 | Total time taken: 4.35 (secs)
+2024-07-02 21:40:43,836 - Run Summary - INFO - Status Code 400: 2482 times
+2024-07-02 21:40:43,836 - Run Summary - INFO - Status Code 200: 2518 times
+2024-07-02 21:41:31,686 - Run Summary - INFO - Runs: 5000 | Total time taken: 4.16 (secs)
+2024-07-02 21:41:31,686 - Run Summary - INFO - Status Code 400: 2538 times
+2024-07-02 21:41:31,686 - Run Summary - INFO - Status Code 200: 2462 times
+2024-07-02 21:43:04,683 - Run Summary - INFO - Runs: 3000 | Total time taken: 2.67 (secs)
+2024-07-02 21:43:04,683 - Run Summary - INFO - Status Code 400: 1489 times
+2024-07-02 21:43:04,683 - Run Summary - INFO - Status Code 200: 1511 times
